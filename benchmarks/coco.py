@@ -3,9 +3,7 @@
 COCO Benchmark
 """
 from __future__ import division, print_function
-from numpy.random import rand
 import cocoex
-import os
 from projektwae.evolution import differential_evolution
 
 def main():

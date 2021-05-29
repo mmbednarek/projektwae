@@ -6,10 +6,6 @@ def differential_evolution(target_function,
                            crossp=0.7,
                            population_size=20,
                            iteration_count=20):
-    """
-    Implementacja ewolucji roznicowej
-    """
-
     dimensions = len(bounds)
 
     popluation = np.random.rand(population_size, dimensions)

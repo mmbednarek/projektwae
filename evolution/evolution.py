@@ -18,6 +18,11 @@ def differential_evolution(target_function,
     optimum_idx = np.argmin(fitness)
     optimum = population_den[optimum_idx]
 
+    def pop_diversity():
+        pop = np.asarray(popluation)
+        mean_values = pop.mean(axis=0)
+        return np.sqrt(np.square(pop - mean_values).sum(axis=0)).sum()/dimensions
+
     for _ in range(iteration_count):
         for j in range(population_size):
             idxs = [idx for idx in range(population_size) if idx != j]
@@ -38,7 +43,7 @@ def differential_evolution(target_function,
                 if f < fitness[optimum_idx]:
                     optimum_idx = j
                     optimum = trial_denorm
-        yield optimum, fitness[optimum_idx]
+        yield optimum, fitness[optimum_idx], pop_diversity()
 
 def differential_evolution_dg(target_function,
                               bounds,
@@ -46,8 +51,9 @@ def differential_evolution_dg(target_function,
                               crossp=0.7,
                               population_size=20,
                               iteration_count=20,
-                              diver_low=0.05,
-                              diver_high=0.3):
+                              k=5,
+                              diver_low=0.3,
+                              diver_high=0.8):
     dimensions = len(bounds)
 
     popluation = np.random.rand(population_size, dimensions)
@@ -64,10 +70,15 @@ def differential_evolution_dg(target_function,
     direction_first = 1
     direction_second = 1
 
+    def pop_diversity():
+        pop = np.asarray(popluation)
+        mean_values = pop.mean(axis=0)
+        return np.sqrt(np.square(pop - mean_values).sum(axis=0)).sum()/dimensions
+
     def diversity(specimen):
         pop = np.asarray(popluation)
         mean_values = pop.mean(axis=0)
-        return np.square(specimen - mean_values).sum(axis=0)/dimensions
+        return np.sqrt(np.square(specimen - mean_values).sum())/dimensions
 
     for _ in range(iteration_count):
         for j in range(population_size):
@@ -83,7 +94,7 @@ def differential_evolution_dg(target_function,
                 elif b_diversity > diver_high:
                     direction_first = -1
 
-                mutant = np.clip(a + direction_first * mut * (b - c), 0, 1)
+                mutant = np.clip(a - direction_first * mut * (b - c), 0, 1)
             else:
                 c_diversity = diversity(c)
 
@@ -92,7 +103,7 @@ def differential_evolution_dg(target_function,
                 elif c_diversity > diver_high:
                     direction_second = -1
 
-                mutant = np.clip(a + direction_second * mut * (b - c), 0, 1)
+                mutant = np.clip(a - direction_second * mut * (b - c), 0, 1)
 
             cross_points = np.random.rand(dimensions) < crossp
             if not np.any(cross_points):
@@ -106,4 +117,4 @@ def differential_evolution_dg(target_function,
                 if f < fitness[optimum_idx]:
                     optimum_idx = j
                     optimum = trial_denorm
-        yield optimum, fitness[optimum_idx]
+        yield optimum, fitness[optimum_idx], pop_diversity()

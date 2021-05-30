@@ -9,15 +9,17 @@ def make_header_column(dimension_count):
     header.append("value")
     header.append("error")
     header.append("value_error")
+    header.append("diversity")
     return header
 
-def make_column(iteration, points, value, error, value_error):
+def make_column(iteration, points, value, error, value_error, diversity):
     column = [iteration]
     for point in points:
         column.append(point)
     column.append(value)
     column.append(error)
     column.append(value_error)
+    column.append(diversity)
     return column
 
 class IterationLog:
@@ -36,6 +38,6 @@ class IterationLog:
         _ = args
         self.file.close()
 
-    def log(self, optimum, optimum_value, error, value_error):
+    def log(self, optimum, optimum_value, error, value_error, diversity):
         self.iteration += 1
-        self.writer.writerow(make_column(self.iteration, optimum, optimum_value, error, value_error))
+        self.writer.writerow(make_column(self.iteration, optimum, optimum_value, error, value_error, diversity))

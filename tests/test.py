@@ -70,8 +70,8 @@ class TestCaseBuilder:
         with IterationLog(get_log_path(self.name, diversity_guided), len(self.bounds)) as logger:
             point, value = None, None
             for result in evolution_func(as_handler(self.target_func), self.bounds, iteration_count=self.iteration_count):
-                point, value = result
-                logger.log(point, value, self.get_error(point), abs(self.expected_minimum_value - value))
+                point, value, diversity = result
+                logger.log(point, value, self.get_error(point), abs(self.expected_minimum_value - value), diversity)
 
         if self.expected_minimum_toleration != None:
             self.test_handle.assertLessEqual(self.get_error(point), self.expected_minimum_toleration)

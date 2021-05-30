@@ -6,7 +6,7 @@ LOG_DIR="logs"
 
 generate_error_plot <- function(name, data) {
     ggplot(data, aes(x = iteration, y = error)) + geom_line(aes(color = method), size = 2) +
-        scale_colour_manual(name="Metoda ewolucja różnicowej", values=c("#CC6666", "#9999CC"), breaks=c("classic", "dg"), labels=c("Klasyczna", "Diversity Guided")) +
+        scale_colour_manual(name="Metoda ewolucji różnicowej", values=c("#CC6666", "#9999CC"), breaks=c("classic", "dg"), labels=c("Klasyczna", "Diversity Guided")) +
         labs(x = "Iteracja", y = "Odległość od optimum")
         
     ggsave(paste(OUTPUT_DIR, "/optimum_error/", name, ".pdf", sep=""))
@@ -14,7 +14,7 @@ generate_error_plot <- function(name, data) {
 
 generate_value_error_plot <- function(name, data) {
     ggplot(data, aes(x = iteration, y = value_error)) + geom_line(aes(color = method), size = 2) +
-        scale_colour_manual(name="Metoda ewolucja różnicowej", values=c("#CC6666", "#9999CC"), breaks=c("classic", "dg"), labels=c("Klasyczna", "Diversity Guided")) +
+        scale_colour_manual(name="Metoda ewolucji różnicowej", values=c("#CC6666", "#9999CC"), breaks=c("classic", "dg"), labels=c("Klasyczna", "Diversity Guided")) +
         labs(x = "Iteracja", y = "Odległość od optymalnego wyniku")
 
     ggsave(paste(OUTPUT_DIR, "/value_error/", name, ".pdf", sep=""))

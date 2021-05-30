@@ -1,4 +1,5 @@
 import csv
+import os.path
 
 dimension_names = ['x', 'y', 'z', 'r']
 
@@ -27,7 +28,10 @@ class IterationLog:
         self.iteration = 0
 
     def __enter__(self):
-        self.file = open(self.filename, 'w')
+        dirname = os.path.dirname(self.filename)
+        if dirname != '' and not os.path.exists(dirname):
+            os.mkdir(dirname)
+        self.file = open(self.filename, 'wb+')
         self.writer = csv.writer(self.file)
         self.writer.writerow(make_header_column(self.dimension_count))
         return self

@@ -73,10 +73,10 @@ class TestCaseBuilder:
                 point, value, diversity = result
                 logger.log(point, value, self.get_error(point), abs(self.expected_minimum_value - value), diversity)
 
-        if self.expected_minimum_toleration != None:
+        if not diversity_guided and self.expected_minimum_toleration != None:
             self.test_handle.assertLessEqual(self.get_error(point), self.expected_minimum_toleration)
 
-        if self.expected_minimum_value != None:
+        if not diversity_guided and self.expected_minimum_value != None:
             self.test_handle.assertLessEqual(abs(self.expected_minimum_value - value), self.expected_minimum_value_toleration)
 
         return self
@@ -125,7 +125,7 @@ class TwoLocalOneGlobalTest(unittest.TestCase):
         TestCaseBuilder(self, "two_local.moutains") \
             .with_target_func(lambda x, y: -x**5 + 2*x**4 + 4*x**3 - 2*x**2 - 2*x*y - 2*x + y**2) \
             .with_bounds([(-2, 2), (-2, 2)]) \
-            .with_iteration_count(70) \
+            .with_iteration_count(100) \
             .expect_minimum([-1.14498, -1.14498], toleration=1e-4) \
             .expect_minimum_value(-2.24199, toleration=1e-5) \
             .run(diversity_guided=False) \

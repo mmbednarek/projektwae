@@ -1,13 +1,32 @@
 from __future__ import division, print_function
+
+import random
+import unittest
+
+import sys
+from math import sin, cos, sqrt
 from projektwae.evolution import differential_evolution, differential_evolution_dg
 from projektwae.util import get_error, as_handler, IterationLog
-from math import sin, cos, sqrt
-import unittest
+
+seed = 10000000
+
+
+def get_seed():
+    if len(sys.argv) >= 2:
+        res, sys.argv[1:] = sys.argv[1], sys.argv[2:]
+        try:
+            res = int(res)
+            return res
+        except ValueError:
+            pass
+    return random.randint(0, 1000000000)
+
 
 def get_log_path(testname, diversity_guided):
     if diversity_guided:
         return "logs/" + testname + ".dg.csv"
     return "logs/" + testname + ".csv"
+
 
 class TestCaseBuilder:
     def __init__(self, test_handle, name):
@@ -17,6 +36,7 @@ class TestCaseBuilder:
         self.expected_minimum = None
         self.expected_minimum_set = None
         self.expected_minimum_toleration = None
+        self.seed = seed
 
     def with_bounds(self, bounds):
         self.bounds = bounds
@@ -57,8 +77,7 @@ class TestCaseBuilder:
             return error
         return float("inf")
 
-
-    def run(self, diversity_guided = False):
+    def run(self, diversity_guided=False):
         if self.bounds == None or self.target_func == None:
             self.test_handle.fail("test lacks bounds or target func")
             return self
@@ -69,7 +88,8 @@ class TestCaseBuilder:
 
         with IterationLog(get_log_path(self.name, diversity_guided), len(self.bounds)) as logger:
             point, value = None, None
-            for result in evolution_func(as_handler(self.target_func), self.bounds, iteration_count=self.iteration_count):
+            for result in evolution_func(as_handler(self.target_func), self.bounds, self.seed,
+                                         iteration_count=self.iteration_count):
                 point, value, diversity = result
                 logger.log(point, value, self.get_error(point), abs(self.expected_minimum_value - value), diversity)
 
@@ -77,7 +97,8 @@ class TestCaseBuilder:
             self.test_handle.assertLessEqual(self.get_error(point), self.expected_minimum_toleration)
 
         if not diversity_guided and self.expected_minimum_value != None:
-            self.test_handle.assertLessEqual(abs(self.expected_minimum_value - value), self.expected_minimum_value_toleration)
+            self.test_handle.assertLessEqual(abs(self.expected_minimum_value - value),
+                                             self.expected_minimum_value_toleration)
 
         return self
 
@@ -88,14 +109,15 @@ class UtilTest(unittest.TestCase):
         self.assertLess(get_error([1, 1, 1], [1, 1, 0.9]), 0.1)
 
     def test_as_handler(self):
-        target_func = lambda x, y: (x - 1)**2 + (y + 2)**2
+        target_func = lambda x, y: (x - 1) ** 2 + (y + 2) ** 2
         handler = as_handler(target_func)
         self.assertEqual(handler([1, -2]), 0)
+
 
 class OneOptimumTest(unittest.TestCase):
     def test_parabola_at_zero(self):
         TestCaseBuilder(self, "one.parabola") \
-            .with_target_func(lambda x, y: x**2 + y**2) \
+            .with_target_func(lambda x, y: x ** 2 + y ** 2) \
             .with_bounds([(-10, 10), (-10, 10)]) \
             .expect_minimum([0, 0], toleration=1e-07) \
             .expect_minimum_value(0, toleration=1e-15) \
@@ -104,26 +126,28 @@ class OneOptimumTest(unittest.TestCase):
 
     def test_parabola_3dm(self):
         TestCaseBuilder(self, "one.transposed_parabola") \
-            .with_target_func(lambda x, y, z: (x - 2)**2 + (y + 1)**2 + (z - 6)**2) \
+            .with_target_func(lambda x, y, z: (x - 2) ** 2 + (y + 1) ** 2 + (z - 6) ** 2) \
             .with_bounds([(-20, 20), (-20, 20), (-20, 20)]) \
             .expect_minimum([2, -1, 6], toleration=1e-4) \
             .expect_minimum_value(0, toleration=1e-8) \
             .run(diversity_guided=False) \
             .run(diversity_guided=True)
 
+
 class TwoLocalOneGlobalTest(unittest.TestCase):
     def test_one_dimension(self):
         TestCaseBuilder(self, "two_local.single_dimension") \
-            .with_target_func(lambda x: x**4 - 4.3*x**3 + 3*x**2 - 3) \
+            .with_target_func(lambda x: x ** 4 - 4.3 * x ** 3 + 3 * x ** 2 - 3) \
             .with_bounds([(-1, 3)]) \
             .with_iteration_count(50) \
-            .expect_minimum([8/3], toleration=1e-2) \
+            .expect_minimum([8 / 3], toleration=1e-2) \
             .expect_minimum_value(-12.639506, toleration=1e-3) \
             .run(diversity_guided=False) \
             .run(diversity_guided=True)
+
     def test_two_dimensions(self):
         TestCaseBuilder(self, "two_local.moutains") \
-            .with_target_func(lambda x, y: -x**5 + 2*x**4 + 4*x**3 - 2*x**2 - 2*x*y - 2*x + y**2) \
+            .with_target_func(lambda x, y: -x ** 5 + 2 * x ** 4 + 4 * x ** 3 - 2 * x ** 2 - 2 * x * y - 2 * x + y ** 2) \
             .with_bounds([(-2, 2), (-2, 2)]) \
             .with_iteration_count(100) \
             .expect_minimum([-1.14498, -1.14498], toleration=1e-4) \
@@ -131,10 +155,11 @@ class TwoLocalOneGlobalTest(unittest.TestCase):
             .run(diversity_guided=False) \
             .run(diversity_guided=True)
 
+
 class TwoGlobalTest(unittest.TestCase):
     def test(self):
         TestCaseBuilder(self, "two_global") \
-            .with_target_func(lambda x: x**4 - 2*x**2) \
+            .with_target_func(lambda x: x ** 4 - 2 * x ** 2) \
             .with_bounds([(-2, 2)]) \
             .with_iteration_count(50) \
             .expect_either_minumum([[-1], [1]], toleration=1e-5) \
@@ -142,25 +167,30 @@ class TwoGlobalTest(unittest.TestCase):
             .run(diversity_guided=False) \
             .run(diversity_guided=True)
 
+
 class MultipleLocalTest(unittest.TestCase):
     def test(self):
         TestCaseBuilder(self, "multiple_local") \
-            .with_target_func(lambda x, y: -5 * cos(x**2 + y**2) / (sqrt(x**2 + y**2 + 1))) \
+            .with_target_func(lambda x, y: -5 * cos(x ** 2 + y ** 2) / (sqrt(x ** 2 + y ** 2 + 1))) \
             .with_bounds([(-8, 8), (-8, 8)]) \
             .expect_minimum([0, 0], toleration=1e-5) \
             .expect_minimum_value(-5, toleration=1e-10) \
             .run(diversity_guided=False) \
             .run(diversity_guided=True)
 
+
 class MultipleGlobal(unittest.TestCase):
     def test(self):
         TestCaseBuilder(self, "multiple_global") \
-            .with_target_func(lambda x, y: -2*sin(x**2 + y**2) / sqrt(x**2 + y**2)) \
+            .with_target_func(lambda x, y: -2 * sin(x ** 2 + y ** 2) / sqrt(x ** 2 + y ** 2)) \
             .with_bounds([(-8, 8), (-8, 8)]) \
             .with_iteration_count(20) \
             .expect_minimum_value(-1.7025, toleration=1e-1) \
             .run(diversity_guided=False) \
             .run(diversity_guided=True)
 
+
 if __name__ == '__main__':
+    seed = get_seed()
+    print("seed: " + str(seed))
     unittest.main()

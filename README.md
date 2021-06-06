@@ -38,7 +38,9 @@ można użyć plików .bat znajdujących się w podkatalogu /windows.
   jako argument należy podać wynik kompilacji frameworku coco, plik .egg dostępny w katalogu
   %katalog_bazowy_coco%\build/\python\dist (patrz sekcja **Coco**), wymaga wcześniejszego uruchomienia
   tests_dependencies.bat
-* **benchmark.bat** - uruchamia benchmark bbob z frameworku coco i wyniki zapisuje w katalogu exdata\benchmark-output  
+* **benchmark.bat** - uruchamia benchmark bbob z frameworku coco i wyniki zapisuje w katalogu exdata\benchmark-output,
+  jako argument należy podać typ benchmarku (classic - standardowy algorytm różnicowy, dg - algorytm używający
+  diversity guided)
 
 ## Coco
 Wykonanie testów z użyciem frameworku coco wymaga jego pobrania i kompilacji.

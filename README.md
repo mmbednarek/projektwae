@@ -30,7 +30,8 @@ Na systemach Windows do instalowania niezbędnych zależności oraz uruchamiania
 można użyć plików .bat znajdujących się w podkatalogu /windows.
 * **tests_dependencies.bat** - instaluje zależności niezbędne do uruchomienia testów
 * **tests.bat** - uruchamia testy i generuje logi z nich w podkatalogu /logs, 
-  wymaga wcześniejszego uruchomienia tests_dependencies.bat
+  wymaga wcześniejszego uruchomienia tests_dependencies.bat, jeśli jako argument zostanie podana liczba,
+  stanie się ona ziarnem generatora liczb losowych
 * **plots_dependencies.bat** - instaluje zależności niezbędne do uruchomienia generacji wykresów
 * **tests.bat** - generuje wykresy w podkatalogu /plots na podstawie danych z podkatalogu /logs,
   wymaga wcześniejszego uruchomienia plots_dependencies.bat
@@ -38,7 +39,9 @@ można użyć plików .bat znajdujących się w podkatalogu /windows.
   jako argument należy podać wynik kompilacji frameworku coco, plik .egg dostępny w katalogu
   %katalog_bazowy_coco%\build/\python\dist (patrz sekcja **Coco**), wymaga wcześniejszego uruchomienia
   tests_dependencies.bat
-* **benchmark.bat** - uruchamia benchmark bbob z frameworku coco i wyniki zapisuje w katalogu exdata\benchmark-output  
+* **benchmark.bat** - uruchamia benchmark bbob z frameworku coco i wyniki zapisuje w katalogu exdata\benchmark-output,
+  jako argument należy podać typ benchmarku (classic - standardowy algorytm różnicowy, dg - algorytm używający
+  diversity guided), jeśli jako drugi argument zostanie podana liczba, stanie się ona ziarnem generatora liczb losowych
 
 ## Coco
 Wykonanie testów z użyciem frameworku coco wymaga jego pobrania i kompilacji.

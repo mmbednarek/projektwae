@@ -2,14 +2,16 @@ import numpy as np
 
 def differential_evolution(target_function,
                            bounds,
+                           seed,
                            mut=0.8,
                            crossp=0.7,
                            k = 5,
                            population_size=20,
                            iteration_count=20):
+    rng = np.random.RandomState(seed)
     dimensions = len(bounds)
 
-    popluation = np.random.rand(population_size, dimensions)
+    popluation = rng.rand(population_size, dimensions)
 
     min_b, max_b = np.asarray(bounds).T
     diff = np.fabs(min_b - max_b)
@@ -27,12 +29,12 @@ def differential_evolution(target_function,
     for _ in range(iteration_count):
         for j in range(population_size):
             idxs = [idx for idx in range(population_size) if idx != j]
-            a, b, c = popluation[np.random.choice(idxs, 3, replace = False)]
+            a, b, c = popluation[rng.choice(idxs, 3, replace = False)]
 
             mutant = np.clip(a + mut * (b - c), 0, 1)
-            cross_points = np.random.rand(dimensions) < crossp
+            cross_points = rng.rand(dimensions) < crossp
             if not np.any(cross_points):
-                cross_points[np.random.randint(0, dimensions)] = True
+                cross_points[rng.randint(0, dimensions)] = True
 
             trial = np.where(cross_points, mutant, popluation[j])
             trial_denorm = min_b + trial * diff
@@ -48,14 +50,16 @@ def differential_evolution(target_function,
 
 def differential_evolution_dg(target_function,
                            bounds,
+                           seed,
                            mut=2.0,
                            crossp=0.7,
                            k = 3,
                            population_size=30,
                            iteration_count=20):
+    rng = np.random.RandomState(seed)
     dimensions = len(bounds)
 
-    popluation = np.random.rand(population_size, dimensions)
+    popluation = rng.rand(population_size, dimensions)
 
     min_b, max_b = np.asarray(bounds).T
     diff = np.fabs(min_b - max_b)
@@ -73,24 +77,24 @@ def differential_evolution_dg(target_function,
     for _ in range(iteration_count):
         for j in range(population_size):
             idxs = [idx for idx in range(population_size) if idx != j]
-            a, b, c = popluation[np.random.choice(idxs, 3, replace = False)]
+            a, b, c = popluation[rng.choice(idxs, 3, replace = False)]
 
             distance_to_a = np.partition(np.linalg.norm(np.asarray(popluation) - np.asarray(a), axis=1), k)
             n_population = distance_to_a[:k]
             non_n_population = distance_to_a[k:]
-            y = np.random.choice(n_population)
-            z = np.random.choice(non_n_population)
+            y = rng.choice(n_population)
+            z = rng.choice(non_n_population)
 
-            mut_k = np.random.uniform(0, mut, dimensions)
-            mut1 = np.random.uniform(-1, 1, dimensions) * y * mut_k
-            mut2 = np.random.uniform(-1, 1, dimensions) * z * mut_k
+            mut_k = rng.uniform(0, mut, dimensions)
+            mut1 = rng.uniform(-1, 1, dimensions) * y * mut_k
+            mut2 = rng.uniform(-1, 1, dimensions) * z * mut_k
 
             mutant1 = np.clip(a + mut1 * (b - c), 0, 1)
             mutant2 = np.clip(a + mut2 * (b - c), 0, 1)
 
-            cross_points = np.random.rand(dimensions) < crossp
+            cross_points = rng.rand(dimensions) < crossp
             if not np.any(cross_points):
-                cross_points[np.random.randint(0, dimensions)] = True
+                cross_points[rng.randint(0, dimensions)] = True
 
             trial1 = np.where(cross_points, mutant1, popluation[j])
             trial2 = np.where(cross_points, mutant2, popluation[j])

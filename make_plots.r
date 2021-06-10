@@ -29,11 +29,11 @@ generate_diversity_plot <- function(name, data) {
 }
 
 load_file <- function(name) {
-    data_set = read.csv(paste(LOG_DIR, "/", name, ".csv", sep=""))
+    return(read.csv(paste(LOG_DIR, "/", name, ".csv", sep="")))
 }
 
 load_indexed_file <- function(name, index) {
-    data_set = read.csv(paste(LOG_DIR, "/", name, ".", index, ".csv", sep=""))
+    return(read.csv(paste(LOG_DIR, "/", name, ".", index, ".csv", sep="")))
 }
 
 load_averaged <- function(name) {

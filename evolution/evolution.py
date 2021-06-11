@@ -1,4 +1,5 @@
 import numpy as np
+import scipy.spatial.distance
 
 def differential_evolution(target_function,
                            bounds,
@@ -77,12 +78,21 @@ def differential_evolution_dg(target_function,
         return np.sqrt(np.square(pop - mean_values).sum(axis=0)).sum()/dimensions
 
     for _ in range(iteration_count):
+        pairwise_distances = np.asarray(scipy.spatial.distance_matrix(population, population))
+        to_replace = find_to_replace_after_merge(population, fitness, pairwise_distances)
+        population = np.where(to_replace, rng.rand(population_size, dimensions), population)
+        for i in range(0, population.shape[0]):
+            if to_replace[i, 0]:
+                fitness[i] = target_function(min_b+population[i]*diff)
+        pairwise_distances = np.asarray(scipy.spatial.distance_matrix(population, population))
         new_population = np.copy(population)
         for j in range(population_size):
             idxs = [idx for idx in range(population_size) if idx != j]
-            a, b, c = population[rng.choice(idxs, 3, replace = False)]
+            a_id, b_id, c_id = rng.choice(idxs, 3, replace = False)
+            a, b, c = population[a_id], population[b_id], population[c_id]
 
-            distance_to_a = np.partition(np.linalg.norm(np.asarray(popluation) - np.asarray(a), axis=1), k)
+
+            distance_to_a = np.partition(pairwise_distances[a_id], k)
             n_population = distance_to_a[:k]
             non_n_population = distance_to_a[k:]
             y = rng.choice(n_population)
@@ -128,4 +138,26 @@ def differential_evolution_dg(target_function,
                     optimum = trial_denorm
         population = new_population
         yield optimum, fitness[optimum_idx], pop_diversity()
+
+
+def calc_avg_dist(pairwise_distances):
+    return np.mean(pairwise_distances)
+
+
+def find_to_replace_after_merge(population, fitness, pairwise_distances):
+    avg_dist = calc_avg_dist(pairwise_distances)
+    merge_dist = 0.01 * avg_dist
+    to_replace = [False] * population.shape[0]
+    for i in range(0, population.shape[0]):
+        if to_replace[i]:
+            continue
+        for j in range(i+1, population.shape[0]):
+            if to_replace[j] or pairwise_distances[i, j] > merge_dist:
+                continue
+            if fitness[i] > fitness[j]:
+                to_replace[i] = True
+                break
+            else:
+                to_replace[j] = True
+    return np.column_stack([to_replace for _ in range(0, population.shape[1])])
 

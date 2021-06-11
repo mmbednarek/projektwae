@@ -11,41 +11,43 @@ def differential_evolution(target_function,
     rng = np.random.RandomState(seed)
     dimensions = len(bounds)
 
-    popluation = rng.rand(population_size, dimensions)
+    population = rng.rand(population_size, dimensions)
 
     min_b, max_b = np.asarray(bounds).T
     diff = np.fabs(min_b - max_b)
-    population_den = min_b + popluation * diff
+    population_den = min_b + population * diff
 
     fitness = np.asarray([target_function(ind) for ind in population_den])
     optimum_idx = np.argmin(fitness)
     optimum = population_den[optimum_idx]
 
     def pop_diversity():
-        pop = np.asarray(popluation)
+        pop = np.asarray(population)
         mean_values = pop.mean(axis=0)
         return np.sqrt(np.square(pop - mean_values).sum(axis=0)).sum()/dimensions
 
     for _ in range(iteration_count):
+        new_population = np.copy(population)
         for j in range(population_size):
             idxs = [idx for idx in range(population_size) if idx != j]
-            a, b, c = popluation[rng.choice(idxs, 3, replace = False)]
+            a, b, c = population[rng.choice(idxs, 3, replace = False)]
 
             mutant = np.clip(a + mut * (b - c), 0, 1)
             cross_points = rng.rand(dimensions) < crossp
             if not np.any(cross_points):
                 cross_points[rng.randint(0, dimensions)] = True
 
-            trial = np.where(cross_points, mutant, popluation[j])
+            trial = np.where(cross_points, mutant, population[j])
             trial_denorm = min_b + trial * diff
 
             f = target_function(trial_denorm)
             if f < fitness[j]:
                 fitness[j] = f
-                popluation[j] = trial
+                new_population[j] = trial
                 if f < fitness[optimum_idx]:
                     optimum_idx = j
                     optimum = trial_denorm
+        population = new_population
         yield optimum, fitness[optimum_idx], pop_diversity()
 
 def differential_evolution_dg(target_function,
@@ -59,25 +61,26 @@ def differential_evolution_dg(target_function,
     rng = np.random.RandomState(seed)
     dimensions = len(bounds)
 
-    popluation = rng.rand(population_size, dimensions)
+    population = rng.rand(population_size, dimensions)
 
     min_b, max_b = np.asarray(bounds).T
     diff = np.fabs(min_b - max_b)
-    population_den = min_b + popluation * diff
+    population_den = min_b + population * diff
 
     fitness = np.asarray([target_function(ind) for ind in population_den])
     optimum_idx = np.argmin(fitness)
     optimum = population_den[optimum_idx]
 
     def pop_diversity():
-        pop = np.asarray(popluation)
+        pop = np.asarray(population)
         mean_values = pop.mean(axis=0)
         return np.sqrt(np.square(pop - mean_values).sum(axis=0)).sum()/dimensions
 
     for _ in range(iteration_count):
+        new_population = np.copy(population)
         for j in range(population_size):
             idxs = [idx for idx in range(population_size) if idx != j]
-            a, b, c = popluation[rng.choice(idxs, 3, replace = False)]
+            a, b, c = population[rng.choice(idxs, 3, replace = False)]
 
             distance_to_a = np.partition(np.linalg.norm(np.asarray(popluation) - np.asarray(a), axis=1), k)
             n_population = distance_to_a[:k]
@@ -96,8 +99,8 @@ def differential_evolution_dg(target_function,
             if not np.any(cross_points):
                 cross_points[rng.randint(0, dimensions)] = True
 
-            trial1 = np.where(cross_points, mutant1, popluation[j])
-            trial2 = np.where(cross_points, mutant2, popluation[j])
+            trial1 = np.where(cross_points, mutant1, population[j])
+            trial2 = np.where(cross_points, mutant2, population[j])
             trial = np.array([])
 
             trial_denorm1 = min_b + trial1 * diff
@@ -119,9 +122,10 @@ def differential_evolution_dg(target_function,
 
             if f < fitness[j]:
                 fitness[j] = f
-                popluation[j] = trial
+                new_population[j] = trial
                 if f < fitness[optimum_idx]:
                     optimum_idx = j
                     optimum = trial_denorm
+        population = new_population
         yield optimum, fitness[optimum_idx], pop_diversity()
 

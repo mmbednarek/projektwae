@@ -29,7 +29,21 @@ generate_diversity_plot <- function(name, data) {
 }
 
 load_file <- function(name) {
-    data_set = read.csv(paste(LOG_DIR, "/", name, ".csv", sep=""))
+    return(read.csv(paste(LOG_DIR, "/", name, ".csv", sep="")))
+}
+
+load_indexed_file <- function(name, index) {
+    return(read.csv(paste(LOG_DIR, "/", name, ".", index, ".csv", sep="")))
+}
+
+load_averaged <- function(name) {
+    data = data.frame()
+    for (index in 0:9) {
+        data = rbind(data, load_indexed_file(name, index))
+    }
+    data = aggregate(data, by=data[,"iteration",drop=FALSE], mean)
+    data = data[,!duplicated(colnames(data))]
+    return(data)
 }
 
 tests = c(
@@ -43,13 +57,13 @@ tests = c(
 )
 
 for (test in tests) {
-    data_classic = load_file(test)
-    data_dg = load_file(paste(test, ".dg", sep=""))
+    data_classic = load_averaged(test)
+    data_dg = load_averaged(paste(test, ".dg", sep=""))
 
     data_classic$method = "classic"
     data_dg$method = "dg"
 
-    data <- rbind.data.frame(data_classic, data_dg)
+    data <- rbind(data_classic, data_dg)
 
     generate_error_plot(test, data)
     generate_value_error_plot(test, data)

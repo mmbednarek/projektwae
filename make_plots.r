@@ -5,7 +5,7 @@ OUTPUT_DIR="plots"
 LOG_DIR="logs"
 
 generate_error_plot <- function(name, data) {
-    ggplot(data, aes(x = iteration, y = error)) + geom_line(aes(color = method), size = 2) +
+    ggplot(data, aes(x = iteration, y = error)) + geom_line(aes(color = method), size = 2, show.legend=FALSE) +
         scale_colour_manual(name="Metoda ewolucji różnicowej", values=c("#CC6666", "#9999CC"), breaks=c("classic", "dg"), labels=c("Klasyczna", "Diversity Guided")) +
         labs(x = "Iteracja", y = "Odległość od optimum")
         
@@ -13,7 +13,7 @@ generate_error_plot <- function(name, data) {
 }
 
 generate_value_error_plot <- function(name, data) {
-    ggplot(data, aes(x = iteration, y = value_error)) + geom_line(aes(color = method), size = 2) +
+    ggplot(data, aes(x = iteration, y = value_error)) + geom_line(aes(color = method), size = 2, show.legend=FALSE) +
         scale_colour_manual(name="Metoda ewolucji różnicowej", values=c("#CC6666", "#9999CC"), breaks=c("classic", "dg"), labels=c("Klasyczna", "Diversity Guided")) +
         labs(x = "Iteracja", y = "Odległość od optymalnego wyniku")
 
@@ -21,7 +21,7 @@ generate_value_error_plot <- function(name, data) {
 }
 
 generate_diversity_plot <- function(name, data) {
-    ggplot(data, aes(x = iteration, y = diversity)) + geom_line(aes(color = method), size = 2) +
+    ggplot(data, aes(x = iteration, y = diversity)) + geom_line(aes(color = method), size = 2, show.legend=FALSE) +
         scale_colour_manual(name="Metoda ewolucja różnicowej", values=c("#CC6666", "#9999CC"), breaks=c("classic", "dg"), labels=c("Klasyczna", "Diversity Guided")) +
         labs(x = "Iteracja", y = "Różnorodność")
 

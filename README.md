@@ -42,6 +42,12 @@ można użyć plików .bat znajdujących się w podkatalogu /windows.
 * **benchmark.bat** - uruchamia benchmark bbob z frameworku coco i wyniki zapisuje w katalogu exdata\benchmark-output,
   jako argument należy podać typ benchmarku (classic - standardowy algorytm różnicowy, dg - algorytm używający
   diversity guided), jeśli jako drugi argument zostanie podana liczba, stanie się ona ziarnem generatora liczb losowych
+* **benchmark_analyze_dependencies.bat** - instaluje zależności niezbędne do analizy wyników wywołania benchmarka 
+  coco. Wymaga pythona3
+* **benchmark_analyze.bat** - analizuje wyniki wywołania benchmarka coco. Wymaga wcześniejszego uruchomienia 
+  benchmark_analyze_dependencies.bat oraz pythona3. Wymaga także wywołania benchmark.bat dla obu metod
+  i odpowiedniego nazwania katalogów z wynikami benchmarka. Wyniki zostaną zaprezentowane na ekranie po analize, a także będą
+  dostępne w ppdata/index.html
 
 ## Coco
 Wykonanie testów z użyciem frameworku coco wymaga jego pobrania i kompilacji.
